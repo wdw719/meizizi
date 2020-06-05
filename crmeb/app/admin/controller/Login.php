@@ -37,7 +37,8 @@ class Login extends SystemBasic
             return $this->failed('错误次数过多,请稍候再试!');
         //检验帐号密码
         $res = SystemAdmin::login($account, $pwd);
-        if ($res) {
+        $count = SystemAdmin::systemCount($account);
+        if ($res && $count) {
             Session::set('login_error', null);
             Session::save();
             return $this->successful(['url' => Url::buildUrl('Index/index')->build()]);

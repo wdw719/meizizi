@@ -169,4 +169,16 @@ class SystemAdmin extends BaseModel
             $admin->roles = SystemRole::where('id','IN',$admin->roles)->column('role_name','id');
         },$where);
     }
+    /**
+     *登录次数
+     * @param $account
+     */
+
+    public  static  function  systemCount($account)
+    {
+        $old_account = self::where('account',$account)->field('id,login_count')->find();
+        $now_account=self::where('id',$old_account['id'])
+            ->update(['login_count'=>$old_account['login_count']+1]);
+        return $now_account;
+    }
 }
