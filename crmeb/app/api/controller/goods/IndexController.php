@@ -38,7 +38,7 @@ class IndexController{
     */
     public function login(Request $request){
         $ip = $_SERVER['REMOTE_ADDR'];
-        list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
+          list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
         if(!$username && !$password)
             return app('json')->fail('参数缺失');
         $user = new User();

@@ -87,7 +87,7 @@ class User extends BaseModel{
         }
         $user = array('uid' => $user_info['uid'],
             'nickname' => $user_info['nickname'],
-            'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
+            'avatar' => $user_info['avatar'] ? $user_info['head_img'] : '',
             'phone' => $user_info['phone']);
         $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
         $user_token = new UserToken();
