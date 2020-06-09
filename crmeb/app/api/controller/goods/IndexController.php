@@ -3,6 +3,7 @@
 namespace app\api\controller\goods;
 
 use app\admin\model\order\GoodsBrand;
+use app\models\goods\SystemAdmin;
 use app\models\goods\Version;
 use app\models\goods\User;
 use app\Request;
@@ -12,7 +13,7 @@ class IndexController{
 
     /**
      * 普通注册
-    */
+     */
     public function register(Request $request){
         $ip = $_SERVER['REMOTE_ADDR'];
         list($head_img , $nickname ,$birthday, $sex , $phone , $password , $reco) = UtilService::getMore([['head_img'], ['nickname'],['birthday'],
@@ -20,7 +21,7 @@ class IndexController{
         if(!$phone && !$password && !$reco){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
+        $user = new SystemAdmin();
         $check_pass = $user -> check_pass_security($password);
         if($check_pass == false){
             return app('json')->fail('该密码不安全，请重新输入密码！');
@@ -35,13 +36,13 @@ class IndexController{
 
     /**
      * 账号登陆
-    */
+     */
     public function login(Request $request){
         $ip = $_SERVER['REMOTE_ADDR'];
-          list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
+        list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
         if(!$username && !$password)
             return app('json')->fail('参数缺失');
-        $user = new User();
+        $user = new SystemAdmin();
         $info = $user -> login($username , $password , $ip);
         if($info['status'] == 0)
             return app('json')->fail($info['msg']);
@@ -50,7 +51,7 @@ class IndexController{
 
     /**
      * 修改用户资料
-    */
+     */
     public function editUserData(Request $request){
         list($token , $avatar , $birthday , $sex)  = UtilService::getMore([['token'] , ['avatar'] , ['birthday'] , ['sex' , 1]] , $request , true);
         $user = new User();
@@ -63,7 +64,7 @@ class IndexController{
 
     /**
      * 用户资料
-    */
+     */
     public function userInfo(Request $request){
         list($token)  = UtilService::getMore([['token']] , $request , true);
         $user = new User();
@@ -77,7 +78,7 @@ class IndexController{
 
     /**
      * 版本更新
-    */
+     */
     public function edition(Request $request){
         list($type) = UtilService::getMore([['type' , 1]] , $request , true);
         $version = new Version();
@@ -87,7 +88,7 @@ class IndexController{
 
     /**
      * 设置密码
-    */
+     */
     public function setUpPassword(Request $request){
         list($token , $password) = UtilService::getMore([['token'] , ['password']] , $request , true);
         $user = new User();
@@ -103,7 +104,7 @@ class IndexController{
 
     /**
      * 修改密码
-    */
+     */
     public function editPassword(Request $request){
         list($token , $password , $new_password) = UtilService::getMore([['token'] , ['password'] , ['new_password']] , $request , true);
         if(!$token && !$password && !$new_password){
@@ -121,7 +122,7 @@ class IndexController{
 
     /**
      * 获取品牌
-    */
+     */
     public function brandList(){
         $brand = new GoodsBrand();
         $list = $brand -> brandAllList();

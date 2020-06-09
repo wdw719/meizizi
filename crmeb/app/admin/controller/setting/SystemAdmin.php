@@ -60,6 +60,7 @@ class SystemAdmin extends AuthController
                     return $options;
                 })->multiple(1);
         $f[] = Form::radio('status','状态',1)->options([['label'=>'开启','value'=>1],['label'=>'关闭','value'=>0]]);
+        $f[] = Form::radio('limit','是否授权',1)->options([['label'=>'是','value'=>1],['label'=>'否','value'=>0]]);
         $form = Form::make_post_form('添加管理员',$f,Url::buildUrl('save'));
         $this->assign(compact('form'));
         return $this->fetch('public/form-builder');
@@ -79,7 +80,8 @@ class SystemAdmin extends AuthController
             'pwd',
             'real_name',
             ['roles',[]],
-            ['status',0]
+            ['status',0],
+            ['limit',0]
         ]);
         if(!$data['account']) return Json::fail('请输入管理员账号');
         if(!$data['roles']) return Json::fail('请选择至少一个管理员身份');
@@ -91,6 +93,7 @@ class SystemAdmin extends AuthController
         unset($data['conf_pwd']);
         $data['level'] = $this->adminInfo['level'] + 1;
         $data['add_time'] =time();
+        $data['add_ip'] = $_SERVER['REMOTE_ADDR'];
         if(!AdminModel::create($data)) return Json::fail('添加管理员失败');
         return Json::successful('添加管理员成功!');
     }
@@ -120,6 +123,7 @@ class SystemAdmin extends AuthController
             return $options;
         })->multiple(1);
         $f[] = Form::radio('status','状态',1)->options([['label'=>'开启','value'=>1],['label'=>'关闭','value'=>0]]);
+        $f[] = Form::radio('limit','是否授权',1)->options([['label'=>'是','value'=>1],['label'=>'否','value'=>0]]);
         $form = Form::make_post_form('编辑管理员',$f,Url::buildUrl('update',compact('id')));
         $this->assign(compact('form'));
         return $this->fetch('public/form-builder');
@@ -140,7 +144,8 @@ class SystemAdmin extends AuthController
             'pwd',
             'real_name',
             ['roles',[]],
-            ['status',0]
+            ['status',0],
+            ['limit',0]
         ]);
         if(!$data['account']) return Json::fail('请输入管理员账号');
         if(!$data['roles']) return Json::fail('请选择至少一个管理员身份');

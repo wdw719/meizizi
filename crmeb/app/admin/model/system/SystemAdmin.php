@@ -55,6 +55,7 @@ class SystemAdmin extends BaseModel
         if(!$adminInfo) return self::setErrorInfo('登陆的账号不存在!');
         if($adminInfo['pwd'] != md5($pwd)) return self::setErrorInfo('账号或密码错误，请重新输入');
         if(!$adminInfo['status']) return self::setErrorInfo('该账号已被关闭!');
+        if(!$adminInfo['limit']) return self::setErrorInfo('该账号无权限');
         self::setLoginInfo($adminInfo);
         event('SystemAdminLoginAfter',[$adminInfo]);
         return true;
