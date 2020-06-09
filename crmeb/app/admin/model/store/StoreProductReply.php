@@ -135,8 +135,10 @@ class StoreProductReply extends BaseModel
         }else{  //差评
             $where = '<';
         }
-        $ev_list = self::where('is_del' , 0) -> where('product_id' , $gid)-> where('product_score' , $where , 3)
-            ->field('id , product_score , comment , pics , add_time')-> page($page , $limit) -> select() -> toArray();
+        $ev_list = self::where('A.is_del' , 0) -> where('A.product_id' , $gid)-> where('A.product_score' , $where , 3)
+            ->alias('A')
+            ->join('user B','A.uid = B.uid')
+            ->field('A.id , A.product_score , A.comment , A.pics , A.add_time , B.nickname , B.avatar')-> page($page , $limit) -> select() -> toArray();
         return array('eva_list'=>$ev_list , 'ex_count'=>$ex_count ,'in_count'=>$in_count , 'di_count'=>$di_count);
     }
 }
