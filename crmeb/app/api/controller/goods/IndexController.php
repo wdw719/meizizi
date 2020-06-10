@@ -91,7 +91,7 @@ class IndexController{
      */
     public function setUpPassword(Request $request){
         list($token , $password) = UtilService::getMore([['token'] , ['password']] , $request , true);
-        $user = new User();
+        $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');

@@ -122,7 +122,7 @@ class SystemAdmin extends BaseModel
      * 检查用户是否有设置密码
      */
     public function checkPassword($uid){
-        return self::where('uid' , $uid) -> value('pwd');
+        return self::where('id' , $uid) -> value('pwd');
     }
 
 
@@ -130,7 +130,8 @@ class SystemAdmin extends BaseModel
      * 设置密码
      */
     public function setUpPassword($password , $uid){
-        return self::where('uid' , $uid) -> save(['pwd'=>md5($password)]);
+        if(empty($password)) return array('status' => 0, 'msg' => '请输入密码');
+        return self::where('id' , $uid) -> save(['pwd'=>md5($password)]);
     }
 
     /**
