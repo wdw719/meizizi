@@ -21,6 +21,8 @@ class IndexController{
         if(!$phone && !$password && !$reco){
             return app('json')->fail('参数缺失');
         }
+        if(empty($reco)) return api('0','推荐码不能为空');
+        if(empty($phone) || empty($password)) return api('0','账号或密码不能为空');
         $user = new SystemAdmin();
         $check_pass = $user -> check_pass_security($password);
         if($check_pass == false){
@@ -110,11 +112,17 @@ class IndexController{
         if(!$token && !$password && !$new_password){
             return app('json')->fail('参数缺失');
         }
-        if($t)
+       if(empty($token)) return api('0','token不能为空');
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
+        $check_pass = $user -> check_pass_security($new_password);
+        if($check_pass == false){
+            return app('json')->fail('该密码不安全，请重新输入密码！');
+        }
+        if(empty($password)) return api('0','密码不能为空');
+        if(empty($new_password)) return api('0','新密码不能为空');
         $rep = $user -> editPassword($password , $new_password , $rep['uid']);
         if($rep==false)
             return app('json') -> fail('原密码错误，请重新输入！');
