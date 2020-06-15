@@ -97,7 +97,7 @@ class SystemAdmin extends BaseModel
         $user_token -> login_ip = $ip;
         $user_token -> save();
         self::where('id' , $user_info['id']) -> save(['last_time'=>time() , 'last_ip' => $ip]);
-        return array('status' => 1, 'msg' => '登陆成功', 'data' => $user);
+        return array('status' => 200, 'msg' => '登陆成功', 'data' => $user);
     }
 
     /**
@@ -115,7 +115,7 @@ class SystemAdmin extends BaseModel
      * 用户资料
      */
     public function userInfo($uid){
-        return User::where('uid' , $uid) -> field('uid , avatar , birthday , sex')  -> find() -> toArray();
+        return SystemAdmin::where('id' , $uid) -> field('id , avatar , birthday , sex,pwd')  -> find() -> toArray();
     }
 
     /**

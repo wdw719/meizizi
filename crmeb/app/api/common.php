@@ -40,3 +40,16 @@ function setView($uid, $product_id = 0, $cate = 0, $type = '', $content = '', $m
         ]);
     }
 }
+
+function api($code,$message,$data=[])
+{
+    if(empty($data)){
+        $data = new stdClass();
+    }
+    $returnData=array(
+        'code'=>$code,
+        'message'=>$message,
+        'data'=>$data,
+    );
+    echo json_encode($returnData);
+}

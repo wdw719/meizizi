@@ -110,14 +110,15 @@ class IndexController{
         if(!$token && !$password && !$new_password){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
+        if($t)
+        $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $rep = $user -> editPassword($password , $new_password , $rep['uid']);
-        if($rep == false)
+        if($rep==false)
             return app('json') -> fail('原密码错误，请重新输入！');
-        return app('json') -> succsessful($rep);
+      return api('200','修改成功',['new_password'=>$new_password]);
     }
 
     /**
