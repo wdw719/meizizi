@@ -128,4 +128,6 @@ class IndexController{
         $list = $brand -> brandAllList();
         return app('json') -> succsessful();
     }
+
+    
 }
