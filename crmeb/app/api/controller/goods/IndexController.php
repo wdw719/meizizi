@@ -110,7 +110,6 @@ class IndexController{
         if(!$token && !$password && !$new_password){
             return app('json')->fail('参数缺失');
         }
-        if($t)
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
