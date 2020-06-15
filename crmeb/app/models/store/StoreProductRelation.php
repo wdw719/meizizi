@@ -208,5 +208,54 @@ class StoreProductRelation extends BaseModel
         else return [];
     }
 
+    /**
+     * 店铺或者商品收藏
+     */
+    public function collection($id , $type , $re_type , $uid){
+        if($re_type == 1){  //收藏
+            $info = self::where('uid' , $uid) -> where('product_id' , $id) -> where('type' , $type) -> find();
+            if(!$info){
+                $data['uid'] = $uid;
+                $data['product_id'] = $id;
+                $data['type'] = $type;
+                $data['add_time'] = date('Y-m-d H:i:s' , time());
+                $rep = self::save($data);
+            }
+            $rep = 1;
+        }else{  //取消收藏
+            $rep = self::where(['uid'=>$uid , 'product_id'=>$id ,'type'=>$type]) -> delete();
+        }
+        return $rep;
+    }
+
+
+    /**
+     * 商品收藏列表
+     */
+    public function goodsRelation($uid , $page , $limit){
+        $list = self::where(['A.uid'=>$uid , 'A.type'=>1])->alias('A') -> join('StoreProduct B' , 'A.product_id = B.id')
+            ->field('A.add_time , B.id , B.image , B.store_name , B.price , B.vip_price')-> page($page , $limit) -> select() -> toArray();
+        if(!empty($list)){
+            foreach ($list as $k => $value){
+                $list[$k]['re_count'] = self::where(['type'=>1 , 'product_id' => $value['id']]) -> count();
+            }
+        }
+        return $list?array_values($list):array();
+    }
+
+    /**
+     * 店铺收藏列表
+     */
+    public function followShop($uid , $page , $limit){
+        $list = self::where(['A.uid'=>$uid , 'A.type'=>2]) -> alias('A') -> join('Shop B' , 'A.product_id = B.id')
+            -> field('A.add_time ,B.id , B.name , B.phone , B.address , B.long_number , B.lati_number , B.logo , B.wx_name , B.company')
+            -> page($page , $limit) -> select() -> toArray();
+        if(!empty($list)){
+            foreach ($list as $k => $value){
+                $list[$k]['re_count'] = self::where(['type' => 2 , 'product_id'=>$value['id']]) -> count();
+            }
+        }
+        return $list?array_values($list):array();
+    }
 
 }

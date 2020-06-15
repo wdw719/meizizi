@@ -3,9 +3,15 @@
 namespace app\api\controller\goods;
 
 use app\admin\model\order\GoodsBrand;
+use app\admin\model\system\SystemAttachment;
+use app\models\goods\Footprint;
+use app\models\goods\News;
+use app\models\goods\PhoneCode;
+use app\models\goods\Shop;
 use app\models\goods\SystemAdmin;
 use app\models\goods\Version;
 use app\models\goods\User;
+use app\models\store\StoreProductRelation;
 use app\Request;
 use crmeb\services\UtilService;
 
@@ -129,5 +135,252 @@ class IndexController{
         return app('json') -> succsessful();
     }
 
-    
+    /**
+     * 店铺或者商品收藏
+     */
+    public function relation(Request $request){
+        list($id , $type , $re_type , $token) = UtilService::getMore([['id'] , ['type' , 1] , ['re_type' , 1] , ['token']] , $request , true);
+        if(!$id && !$type && !$re_type){
+            return app('json')->fail('参数缺失');
+        }
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $store = new StoreProductRelation();
+        $rep = $store -> collection($id , $type , $re_type , $rep['uid']);
+        if(!$rep) return app('json')->fail('操作失败！');
+        else return app('json')->status('SUCCESS', '操作成功!');
+    }
+
+    /**
+     *商品收藏列表
+     */
+    public function goodsRelation(Request $request){
+        list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10]] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $store = new StoreProductRelation();
+        $list = $store -> goodsRelation($rep['uid'] , $page , $limit);
+        return json_encode( array(
+            'status'=>200,
+            'msg'=>'',
+            'data'=> $list
+        ));
+    }
+
+
+    /**
+     * 获取手机验证码
+     */
+    public function getPhoneCode(Request $request){
+        list($phone) = UtilService::getMore([['phone']] , $request , true);
+        if(!$phone){
+            return app('json') -> fail('手机号错误！');
+        }
+        //调用短信接口
+        //$code = rand(10000 , 99999);
+        $code = 1111;
+        $phone_code = new PhoneCode();
+        $phone_code -> add($phone , $code);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> ''));
+    }
+
+    /**
+     *判断手机验证码
+     */
+    public function ifPhoneCode(Request $request){
+        list($phone , $code) = UtilService::getMore([['phone'] , ['code']] , $request , true);
+        if(!$phone && $code){
+            return app('json') -> fail('手机号或者验证码错误！');
+        }
+        $phone_code = new PhoneCode();
+        $info = $phone_code -> info($phone);
+        if($code != $info['code']){
+            return app('json') -> fail('验证码错误！');
+        }
+        if(time() > $info['code_time']){
+            return app('json') -> fail('验证码已过期！');
+        }
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> ''));
+    }
+
+    /**
+     * 手机号注册
+     */
+    public function phoneRegister($phone  , $code){
+        if(!$phone){
+            return app('json') -> fail('手机号错误！');
+        }
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $user = new User();
+        $count = $user -> phoneIsRegister($phone);
+        if($count > 0){
+            return app('json')->fail('该电话号码已经注册');
+        }
+        $reco_uid = $user -> getUserId($code);
+        if(!$reco_uid){
+            return app('json')->fail('推荐码错误！');
+        }
+        $rep = $user -> phoneRegister($phone  , $reco_uid , $ip);
+        return app('json')->successful($rep);
+    }
+
+    /**
+     *推荐码
+     */
+    public function getUserCode(Request $request){
+        list($token) = UtilService::getMore([['token']] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $reco = $user -> getUserReco($rep['uid']);
+        $user_reco_info = SystemAttachment::getInfo($rep['uid'].'_user_recommend.jpg', 'name');
+        if($user_reco_info){
+            $reco_dir = $user_reco_info['att_dir'];
+        }else{
+            $imageInfo = UtilService::getQRCodePath($reco, $rep['uid'].'_user_recommend.jpg');
+            SystemAttachment::attachmentAdd($imageInfo['name'], $imageInfo['size'], $imageInfo['type'], $imageInfo['dir'], $imageInfo['thumb_path'], 1, $imageInfo['image_type'], $imageInfo['time'], 2);
+            $reco_dir = $imageInfo['dir'];
+        }
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> array('reco_code'=>$reco , 'reco_url'=>$reco_dir)));
+    }
+
+    /**
+     * 上传资料
+     */
+    public function addShop(Request $request){
+        $ip = $_SERVER['REMOTE_ADDR'];
+        list($code , $name , $phone , $address , $long_number , $lati_number , $front_img , $business_img) =
+            UtilService::getMore([['code'] , ['name'] , ['phone'] , ['address'] , ['long_number'] , ['lati_number'] , ['front_img'] ,
+                ['business_img']] , $request , true);
+        if(!$code && !$name && !$phone && !$address && !$long_number && !$lati_number && !$front_img && !$business_img){
+            return app('json')->fail('参数内容错误！');
+        }
+        $shop = new Shop();
+        $user = new User();
+        $reco_uid = $user -> getUserId($code);
+        if(!$reco_uid){
+            return app('json')->fail('推荐码错误！');
+        }
+        $user -> phoneRegister($phone  , $reco_uid , $ip);
+        $uid = $user -> phoneGetUser($phone);
+        $rep = $shop -> add($reco_uid , $uid , $name , $phone , $address , $long_number , $lati_number , $front_img , $business_img);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep));
+    }
+
+    /**
+     * 验证码登陆
+     */
+    public function phoneLogin($phone){
+        if(!$phone){
+            return app('json')->fail('手机号错误！');
+        }
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $user = new User();
+        $rep = $user -> phoneLogin($phone , $ip);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep['data']));
+    }
+
+    /**
+     * 附近门店
+     */
+    public function nearbyShop(Request $request){
+        list($token , $long_number , $lati_number , $page , $limit) = UtilService::getMore([['token'] , ['long_number'] , ['lati_number'] , ['page' , 1] , ['limit' , 10]] , $request , true);
+        if(!$token && !$long_number && !$lati_number){
+            return app('json')->fail('参数内容错误！');
+        }
+        $shop = new Shop();
+        $list = $shop -> nearbyShop($token , $long_number , $lati_number , $page , $limit);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $list));
+    }
+
+    /**
+     * 关注店铺
+     */
+    public function followShop(Request $request){
+        list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10 ]] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $store = new StoreProductRelation();
+        $list = $store -> followShop($rep['uid'] , $page , $limit);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $list));
+    }
+
+    /**
+     * 足迹
+     */
+    public function footprint(Request $request){
+        list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10 ]] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $foot = new Footprint();
+        $list = $foot -> footprint($rep['uid'] , $page , $limit);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $list));
+    }
+
+    /**
+     * 删除单条足迹
+     */
+    public function delOneFoot(Request $request){
+        list($token , $id) = UtilService::getMore([['token'] , ['id']] ,$request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $foot = new Footprint();
+        $rep = $foot -> delOneFoot($rep['uid'] , $id);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep));
+    }
+
+    /**
+     * 删除全部
+     */
+    public function delFoot(Request $request){
+        list($token) = UtilService::getMore([['token']] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $foot = new Footprint();
+        $reps = $foot -> delFoot($rep['uid']);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $reps));
+    }
+
+    /**
+     * 用户消息列表
+     */
+    public function newList(Request $request){
+        list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10]] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $news = new News();
+        $list = $news -> newsList($rep['uid'] , $page , $limit);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$list?array_values($list):array()));
+    }
+
+    /**
+     * 删除消息
+     */
+    public function delNews(Request $request){
+        list($token , $id) = UtilService::getMore([['token'] , ['id']] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $news = new News();
+        $reps = $news -> delNews($rep['uid'] , $id);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$reps));
+    }
+
+
 }
