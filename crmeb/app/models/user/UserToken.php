@@ -12,7 +12,7 @@ class UserToken extends Model
 
     protected $type = [
         'create_time' => 'datetime',
-        'login_ip' => 'string'
+        'login_ip' => 'string',
     ];
 
     protected $autoWriteTimestamp = true;
