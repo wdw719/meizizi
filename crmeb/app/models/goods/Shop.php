@@ -3,6 +3,7 @@
 namespace app\models\goods;
 
 use crmeb\basic\BaseModel;
+use think\db\Query;
 
 class Shop extends BaseModel{
 
@@ -23,9 +24,12 @@ class Shop extends BaseModel{
     }
 
     public function  nearbyShop($token , $long_number , $lati_number , $page , $limit){
-        $list = self::where('')->field('id , long_number , lati_number') -> select() -> toArray();
+        $list = self::where('') -> alias('a')
+            ->field('a.id , a.long_number , a.lati_number , a.phone , a.address , a.wx_name , a.logo , a.company  ,
+            (st_distance (point (a.long_number,a.lati_number),point('.$long_number.','.$lati_number.'))* 111195) AS distance')
+            ->page($page , $limit)  ->order('distance asc')-> select() -> toArray();
+        return $list?array_values($list):array();
 
-        var_dump($list);exit;
     }
 
 

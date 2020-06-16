@@ -230,7 +230,28 @@ Route::group(function () {
     Route::post('goods/goodsInfo', 'goods.GoodsController/goodsInfo')->name('goodsGoodsInfo');//商品详情
     Route::post('goods/goodsEva', 'goods.GoodsController/goodsEva')->name('goodsGoodsEva');//商品评价
     Route::post('goods/evaList', 'goods.GoodsController/evaList')->name('goodsEvaList');//评论列表
-
+    Route::post('index/relation', 'goods.IndexController/relation')->name('indexRelation');//商品店铺收藏
+    Route::post('index/goodsRelation', 'goods.IndexController/goodsRelation')->name('indexGoodsRelation');//商品收藏列表
+    Route::post('goods/createOrder', 'goods.GoodsController/createOrder')->name('goodsCreateOrder');//直接购买
+    Route::post('goods/orderList', 'goods.GoodsController/orderList')->name('goodsOrderList');//订单列表
+    Route::post('goods/orderInfo', 'goods.GoodsController/orderInfo')->name('goodsOrderInfo');//订单详情
+    Route::post('index/getPhoneCode', 'goods.IndexController/getPhoneCode')->name('indexGetPhoneCode');//获取手机验证码
+    Route::post('index/ifPhoneCode', 'goods.IndexController/ifPhoneCode')->name('indexIfPhoneCode');//判断手机验证码
+    Route::post('index/getUserCode', 'goods.IndexController/getUserCode')->name('indexGetUserCode');//获取用户推荐码
+    Route::post('index/phoneRegister', 'goods.IndexController/phoneRegister')->name('indexPhoneRegister');//手机号注册
+    Route::post('index/addShop', 'goods.IndexController/addShop')->name('indexAddShop');//上传资料
+    Route::post('index/phoneLogin', 'goods.IndexController/phoneLogin')->name('indexPhoneLogin');//手机号登陆
+    Route::post('index/nearbyShop', 'goods.IndexController/nearbyShop')->name('indexNearbyShop');//附近门店
+    Route::post('index/followShop', 'goods.IndexController/followShop')->name('indexFollowShop');//收藏店铺
+    Route::post('index/footprint', 'goods.IndexController/footprint')->name('indexFootprint');//商品足迹
+    Route::post('index/delOneFoot', 'goods.IndexController/delOneFoot')->name('indexDelOneFoot');//删除单条足迹
+    Route::post('index/delFoot', 'goods.IndexController/delFoot')->name('indexDelFoot');//删除全部足迹
+    Route::post('index/newList', 'goods.IndexController/newList')->name('indexNewList');//用户消息列表
+    Route::post('index/delNews', 'goods.IndexController/delNews')->name('indexDelNews');//删除消息
+    Route::post('goods/addCart', 'goods.GoodsController/addCart')->name('goodsAddCart'); //购物车添加
+    Route::post('goods/editCart', 'goods.GoodsController/editCart')->name('goodsEditCart'); //购物车修改
+    Route::post('goods/cartList', 'goods.GoodsController/cartList')->name('goodsCartList'); //购物车列表
+    Route::post('goods/delCart', 'goods.GoodsController/delCart')->name('goodsDelCart'); //删除购物车
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);
 
 
