@@ -143,4 +143,39 @@ class User extends BaseModel{
         return $this -> setUpPassword($new_password , $uid);
 
     }
+
+    /**
+     * 获取用户推荐码
+     */
+    public function getUserReco($uid){
+        return self::where('uid' , $uid) -> value('reco_code');
+    }
+
+    /**
+     * 根据推荐码获取推荐用户
+     */
+    public function getUserId($reco){
+        return self::where('reco_code' , $reco) -> value('uid');
+    }
+
+    /**
+     * 绑定支付宝
+     */
+    public function alipayName($uid , $number){
+        return self::where('uid' , $uid) -> save(['alipay_name' => $number]);
+    }
+
+    /**
+     * 取消绑定支付宝
+     */
+    public function delAlipayName($uid){
+        return self::where('uid' , $uid) -> save(['alipay_name' => '']);
+    }
+
+    /**
+     * 用户余额
+     */
+    public function userMoney($uid){
+        return self::where('uid' , $uid) -> value('now_money');
+    }
 }

@@ -395,5 +395,42 @@ class IndexController{
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$reps));
     }
 
+    /**
+     * 绑定支付宝账号
+     */
+    public function alipayName(Request $request){
+        list($token , $number) = UtilService::getMore([['token'] , ['number']] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $rep = $user -> alipayName($rep['uid'] , $number);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$rep));
+    }
+
+    /**
+     * 删除支付宝账号
+     */
+    public function delAlipayName(Request $request){
+        list($token) = UtilService::getMore([['token']] , $request , true);
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $rep = $user -> delAlipayName($rep['uid']);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$rep));
+    }
+
+    /**
+     * 用户余额
+     */
+    public function userMoney($token){
+        $user = new User();
+        $rep = $user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $info = $user -> userMoney($rep['uid']);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$info));
+    }
 
 }
