@@ -38,7 +38,8 @@
         "spatie/macroable": "^1.0",
         "dh2y/think-qrcode": "^2.0",
         "topthink/think-multi-app": "^1.0",
-        "topthink/think-template": "^2.0"
+        "topthink/think-template": "^2.0",
+        "alibabacloud/client": "^1.5"
     },
     "autoload": {
         "psr-4": {
