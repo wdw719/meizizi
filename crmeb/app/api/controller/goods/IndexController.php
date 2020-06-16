@@ -27,6 +27,8 @@ class IndexController{
         if(!$phone && !$password && !$reco){
             return app('json')->fail('参数缺失');
         }
+        if(empty($reco)) return api('0','推荐码不能为空');
+        if(empty($phone) || empty($password)) return api('0','账号或密码不能为空');
         $user = new SystemAdmin();
         $check_pass = $user -> check_pass_security($password);
         if($check_pass == false){
@@ -37,7 +39,7 @@ class IndexController{
             return app('json')->fail('该电话号码已经注册');
         }
         $rep = $user -> register($head_img , $nickname , $birthday , $sex , $phone , $password, $reco , $ip);
-        return app('json')->successful($rep);
+        return api('200','注册成功',$rep);
     }
 
     /**
@@ -47,11 +49,13 @@ class IndexController{
         $ip = $_SERVER['REMOTE_ADDR'];
         list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
         if(!$username && !$password)
-            return app('json')->fail('参数缺失');
+            return api('0','参数错误');
+        if(!$username || !$password)
+            return api('0','账号或密码不能为空');
         $user = new SystemAdmin();
         $info = $user -> login($username , $password , $ip);
         if($info['status'] == 0)
-            return app('json')->fail($info['msg']);
+            return api('0',$info['msg']);
         return app('json') -> successful($info['data']);
     }
 
@@ -116,14 +120,23 @@ class IndexController{
         if(!$token && !$password && !$new_password){
             return app('json')->fail('参数缺失');
         }
+
+        if(empty($token)) return api('0','token不能为空');
+
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
+        $check_pass = $user -> check_pass_security($new_password);
+        if($check_pass == false){
+            return app('json')->fail('该密码不安全，请重新输入密码！');
+        }
+        if(empty($password)) return api('0','密码不能为空');
+        if(empty($new_password)) return api('0','新密码不能为空');
         $rep = $user -> editPassword($password , $new_password , $rep['uid']);
         if($rep==false)
             return app('json') -> fail('原密码错误，请重新输入！');
-      return api('200','修改成功',['new_password'=>$new_password]);
+        return api('200','修改成功',['new_password'=>$new_password]);
     }
 
     /**

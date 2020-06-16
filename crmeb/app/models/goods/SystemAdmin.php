@@ -67,7 +67,22 @@ class SystemAdmin extends BaseModel
         $user -> spread_time = time();
         $user -> reco_code = $this  -> setString();
         $user -> sex = $sex;
-        return $user -> save();
+        $user -> save();
+        return [
+            'account'    => $user -> account,
+            'pwd'        => $user -> pwd,
+            'nickname'   => $user-> nickname,
+            'phone'      => $user -> phone,
+            'birthday'   => $user->birthday,
+            'avatar'     => $user->avatar,
+            'add_time'   => $user->add_time,
+            'add_ip'     => $user->add_ip,
+            'last_ip'    => $user->last_ip,
+            'spread_uid' => $user->spread_uid,
+            'spread_time'=> $user->spread_time,
+            'reco_code'  => $user->reco_code,
+            'sex'        =>  $user->sex
+        ];
     }
 
 
