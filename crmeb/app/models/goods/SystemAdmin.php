@@ -93,7 +93,7 @@ class SystemAdmin extends BaseModel
      * 登陆
      */
     public function login($username , $password , $ip){
-        $user_info = self::where('account',$username) -> find() -> toArray();
+        $user_info = self::where('account',$username) -> find();
         if (!$user_info) {
             return array('status' => 0 , 'msg' => '账号不存在!');
         }
@@ -107,7 +107,9 @@ class SystemAdmin extends BaseModel
         $user = array('id' => $user_info['id'],
             'nickname' => $user_info['nickname'],
             'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
-            'phone' => $user_info['phone']);
+            'phone' => $user_info['phone'],
+            'alipay_name' => $user_info['alipay_name']
+            );
         $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
         $sel  = UserToken::where(['uid'=>$user_info['id']])->find();
         if($sel){
