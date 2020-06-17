@@ -67,9 +67,11 @@ class IndexController{
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
-            return app('json') -> fail('token已失效，请重新登陆');
+            return api('0','token已失效，请重新登陆');
         $user_rep = $user -> editUserData($avatar , $birthday , $sex , $rep['uid']);
-        return app('json') -> successful($user_rep);
+        if($user_rep == false) return api('0','修改错误');
+        $data = ['id'=>$rep['uid'],'avatar'=>$avatar,'birthday'=>$birthday,'sex'=>$sex];
+        return api('200','修改成功');
     }
 
     /**
@@ -77,10 +79,11 @@ class IndexController{
      */
     public function userInfo(Request $request){
         list($token)  = UtilService::getMore([['token']] , $request , true);
-        $user = new User();
+        $user = new SystemAdmin();
+        if(empty($token)) return api('0','token不存在');
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
-            return app('json') -> fail('token已失效，请重新登陆');
+            return api('0','token已失效，请重新登陆');
         $info = $user -> userInfo($rep['uid']);
         return app('json') -> successful($info);
 

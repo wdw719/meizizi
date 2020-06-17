@@ -252,6 +252,10 @@ Route::group(function () {
     Route::post('goods/editCart', 'goods.GoodsController/editCart')->name('goodsEditCart'); //购物车修改
     Route::post('goods/cartList', 'goods.GoodsController/cartList')->name('goodsCartList'); //购物车列表
     Route::post('goods/delCart', 'goods.GoodsController/delCart')->name('goodsDelCart'); //删除购物车
+
+    //团队管理
+    Route::post('team/myTeam', 'goods.TeamController/myTeam')->name('teammyTeam'); //我的团队
+
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);
 
 
