@@ -41,10 +41,13 @@ class SystemAdmin extends BaseModel
      * 根据token判断用户信息
      */
     public function userToken($token){
-        $user_token_info = UserToken::where('token' , $token) -> find() -> toArray();
+        $user_token_info = UserToken::where('token' , $token) -> find();
+
+//        if(empty($user_token_info)){
         if(strtotime($user_token_info['expires_time']) < time()){
             return array('status' => 0 , 'msg'=>'token不存在或者已过期');
         }
+//    }
         return array('status'=>1 , 'uid'=>$user_token_info['uid']);
     }
 
@@ -100,19 +103,32 @@ class SystemAdmin extends BaseModel
         if ($user_info['status'] == 0) {
             return array('status' => 0, 'msg' => '账号异常已被锁定！！！');
         }
+        $user_token = new UserToken();
         $user = array('id' => $user_info['id'],
             'nickname' => $user_info['nickname'],
-            'avatar' => $user_info['avatar'] ? $user_info['head_img'] : '',
+            'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
             'phone' => $user_info['phone']);
         $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
-        $user_token = new UserToken();
-        $user_token -> uid = $user_info['id'];
-        $user_token -> token = $user['token'];
-        $user_token -> expires_time = date('Y-m-d H:i:s', time()+ 7 * 24 * 3600);
-        $user_token -> login_ip = $ip;
-        $user_token -> save();
-        self::where('id' , $user_info['id']) -> save(['last_time'=>time() , 'last_ip' => $ip]);
-        return array('status' => 200, 'msg' => '登陆成功', 'data' => $user);
+        $sel  = UserToken::where(['uid'=>$user_info['id']])->find();
+        if($sel){
+            UserToken::update([
+                'token'          =>   $user['token'],
+                'expires_time'  =>   date('Y-m-d H:i:s', time()+ 7 * 24 * 3600),
+                'login_ip'      =>    $ip,
+                'update_time'  =>     date('Y-m-d H:i:s', time())
+            ],['id'=>$sel['id']]);
+            self::where('id' , $user_info['id']) -> save(['last_time'=>time() , 'last_ip' => $ip]);
+            return array('status' => 1, 'msg' => '登陆成功', 'data' => $user);
+        }else{
+            $user_token -> uid    = $user_info['id'];
+            $user_token -> token = $user['token'];
+            $user_token -> expires_time = date('Y-m-d H:i:s', time()+ 7 * 24 * 3600);
+            $user_token -> login_ip = $ip;
+            $creates = $user_token -> save();
+            $user_uid  = $user_token->uid;
+            self::where('id' , $user_info['id']) -> save(['last_time'=>time() , 'last_ip' => $ip]);
+            return array('status' => 1, 'msg' => '登陆成功', 'data' => $user);
+        }
     }
 
     /**
@@ -122,7 +138,7 @@ class SystemAdmin extends BaseModel
         $user_data['avatar'] = $avatar;
         $user_data['birthday'] = $birthday;
         $user_data['sex'] = $sex;
-        $rep = self::where('uid' , $uid) -> save($user_data);
+        $rep = self::where('id' , $uid) -> save($user_data);
         return $rep;
     }
 
@@ -145,8 +161,7 @@ class SystemAdmin extends BaseModel
      * 设置密码
      */
     public function setUpPassword($password , $uid){
-        if(empty($password)) return array('status' => 0, 'msg' => '请输入密码');
-        return self::where('id' , $uid) -> save(['pwd'=>md5($password)]);
+        return self::where('id' , $uid) -> update(['pwd'=>md5($password)]);
     }
 
     /**
@@ -154,8 +169,8 @@ class SystemAdmin extends BaseModel
      */
     public function editPassword($password , $new_password , $uid){
         $user_info = $this -> userInfo($uid);
-        if(md5($password) != $user_info['pwd'])
-            return false;
+        if(md5($new_password) != $user_info['pwd'])
+         return api('0','密码不一致');
         return $this -> setUpPassword($new_password , $uid);
 
     }
