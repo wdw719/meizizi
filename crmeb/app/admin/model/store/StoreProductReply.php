@@ -124,7 +124,10 @@ class StoreProductReply extends BaseModel
     }
 
     public function evaList($type , $gid , $page , $limit){
-        $ex_count = self::where('is_del' , 0) -> where('product_id' , $gid) -> where('product_score' , '>' , 3) -> count();
+        $ex_count = self::where('is_del' , 0)
+            -> where('product_id' , $gid)
+            -> where('product_score' , '>' , 3)
+            -> count();
         $di_count = self::where('is_del' , 0) -> where('product_id' , $gid) -> where('product_score' , '<' , 3) -> count();
         $total_count = self::where('is_del' , 0) -> where('product_id' , $gid) -> count();
         $in_count = $total_count - $ex_count - $di_count;

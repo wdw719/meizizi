@@ -541,7 +541,8 @@ class StoreProduct extends BaseModel
         //看了又看
         $reco_list = $this -> getHotProductLoading('id , image , store_name  , price , vip_price , postage , stock , is_postage , browse',1 , 2);
         //商品评论
-        $evaluate = array();
+        $ev =  new \app\admin\model\store\StoreProductReply();
+        $evaluate = $ev -> evaList(1 , $id , 1 , 1);
         return array('info'=>$info , 'reco_list'=>$reco_list , 'eva_list'=>$evaluate);
     }
 }

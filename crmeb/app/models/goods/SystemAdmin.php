@@ -92,7 +92,7 @@ class SystemAdmin extends BaseModel
             return array('status' => 0, 'msg' => '账号异常已被锁定！！！');
         }
         $user_token = new UserToken();
-        $user = array('id' => $user_info['id'],
+        $user = array('uid' => $user_info['id'],
             'nickname' => $user_info['nickname'],
             'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
             'phone' => $user_info['phone'],
