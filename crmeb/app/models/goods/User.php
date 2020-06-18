@@ -148,7 +148,7 @@ class User extends BaseModel{
      * 获取用户推荐码
      */
     public function getUserReco($uid){
-        return self::where('uid' , $uid) -> value('reco_code');
+        return self::where('id' , $uid) -> value('reco_code');
     }
 
     /**
@@ -162,7 +162,7 @@ class User extends BaseModel{
      * 绑定支付宝
      */
     public function alipayName($uid , $number){
-        return self::where('uid' , $uid) -> save(['alipay_name' => $number]);
+        return self::where('id' , $uid) -> save(['alipay_name' => $number]);
     }
 
     /**

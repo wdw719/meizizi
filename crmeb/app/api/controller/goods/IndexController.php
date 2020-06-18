@@ -8,6 +8,7 @@ use app\models\goods\Footprint;
 use app\models\goods\News;
 use app\models\goods\PhoneCode;
 use app\models\goods\Shop;
+use app\models\goods\Sms;
 use app\models\goods\SystemAdmin;
 use app\models\goods\Version;
 use app\models\goods\User;
@@ -160,7 +161,7 @@ class IndexController{
         if(!$id && !$type && !$re_type){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
+        $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
@@ -175,7 +176,7 @@ class IndexController{
      */
     public function goodsRelation(Request $request){
         list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10]] , $request , true);
-        $user = new User();
+        $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
@@ -193,13 +194,14 @@ class IndexController{
      * 获取手机验证码
      */
     public function getPhoneCode(Request $request){
-        list($phone) = UtilService::getMore([['phone']] , $request , true);
+        list($phone , $type) = UtilService::getMore([['phone'] , ['type']] , $request , true);
         if(!$phone){
             return app('json') -> fail('手机号错误！');
         }
         //调用短信接口
-        //$code = rand(10000 , 99999);
-        $code = 1111;
+        $sms = new Sms();
+        $code = rand(10000 , 99999);
+        $sms -> sendSms($phone , $code , $type);
         $phone_code = new PhoneCode();
         $phone_code -> add($phone , $code);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=> ''));
@@ -232,16 +234,16 @@ class IndexController{
             return app('json') -> fail('手机号错误！');
         }
         $ip = $_SERVER['REMOTE_ADDR'];
-        $user = new User();
-        $count = $user -> phoneIsRegister($phone);
+        $sy_user = new SystemAdmin();
+        $count = $sy_user -> phoneIsRegister($phone);
         if($count > 0){
             return app('json')->fail('该电话号码已经注册');
         }
-        $reco_uid = $user -> getUserId($code);
+        $reco_uid = $sy_user -> getUserId($code);
         if(!$reco_uid){
             return app('json')->fail('推荐码错误！');
         }
-        $rep = $user -> phoneRegister($phone  , $reco_uid , $ip);
+        $rep = $sy_user -> phoneRegister($phone  , $reco_uid , $ip);
         return app('json')->successful($rep);
     }
 
@@ -250,11 +252,11 @@ class IndexController{
      */
     public function getUserCode(Request $request){
         list($token) = UtilService::getMore([['token']] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
-        $reco = $user -> getUserReco($rep['uid']);
+        $reco = $sy_user -> getUserReco($rep['uid']);
         $user_reco_info = SystemAttachment::getInfo($rep['uid'].'_user_recommend.jpg', 'name');
         if($user_reco_info){
             $reco_dir = $user_reco_info['att_dir'];
@@ -278,13 +280,13 @@ class IndexController{
             return app('json')->fail('参数内容错误！');
         }
         $shop = new Shop();
-        $user = new User();
-        $reco_uid = $user -> getUserId($code);
+        $sy_user = new SystemAdmin();
+        $reco_uid = $sy_user -> getUserId($code);
         if(!$reco_uid){
             return app('json')->fail('推荐码错误！');
         }
-        $user -> phoneRegister($phone  , $reco_uid , $ip);
-        $uid = $user -> phoneGetUser($phone);
+        $sy_user -> phoneRegister($phone  , $reco_uid , $ip);
+        $uid = $sy_user -> phoneGetUser($phone);
         $rep = $shop -> add($reco_uid , $uid , $name , $phone , $address , $long_number , $lati_number , $front_img , $business_img);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep));
     }
@@ -297,8 +299,8 @@ class IndexController{
             return app('json')->fail('手机号错误！');
         }
         $ip = $_SERVER['REMOTE_ADDR'];
-        $user = new User();
-        $rep = $user -> phoneLogin($phone , $ip);
+        $sy_name = new SystemAdmin();
+        $rep = $sy_name -> phoneLogin($phone , $ip);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep['data']));
     }
 
@@ -320,8 +322,8 @@ class IndexController{
      */
     public function followShop(Request $request){
         list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10 ]] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $store = new StoreProductRelation();
@@ -334,8 +336,8 @@ class IndexController{
      */
     public function footprint(Request $request){
         list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10 ]] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $foot = new Footprint();
@@ -348,8 +350,8 @@ class IndexController{
      */
     public function delOneFoot(Request $request){
         list($token , $id) = UtilService::getMore([['token'] , ['id']] ,$request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $foot = new Footprint();
@@ -362,8 +364,8 @@ class IndexController{
      */
     public function delFoot(Request $request){
         list($token) = UtilService::getMore([['token']] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $foot = new Footprint();
@@ -376,8 +378,8 @@ class IndexController{
      */
     public function newList(Request $request){
         list($token , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10]] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $news = new News();
@@ -390,8 +392,8 @@ class IndexController{
      */
     public function delNews(Request $request){
         list($token , $id) = UtilService::getMore([['token'] , ['id']] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $news = new News();
@@ -404,11 +406,11 @@ class IndexController{
      */
     public function alipayName(Request $request){
         list($token , $number) = UtilService::getMore([['token'] , ['number']] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
-        $rep = $user -> alipayName($rep['uid'] , $number);
+        $rep = $sy_user -> alipayName($rep['uid'] , $number);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$rep));
     }
 
@@ -417,11 +419,11 @@ class IndexController{
      */
     public function delAlipayName(Request $request){
         list($token) = UtilService::getMore([['token']] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
-        $rep = $user -> delAlipayName($rep['uid']);
+        $rep = $sy_user -> delAlipayName($rep['uid']);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$rep));
     }
 
@@ -429,11 +431,11 @@ class IndexController{
      * 用户余额
      */
     public function userMoney($token){
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
-        $info = $user -> userMoney($rep['uid']);
+        $info = $sy_user -> userMoney($rep['uid']);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$info));
     }
 

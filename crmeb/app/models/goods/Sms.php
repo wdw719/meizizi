@@ -11,10 +11,14 @@ class Sms extends BaseModel{
     /**
      * 发送短信
      */
-    public function sendSms(){
-        AlibabaCloud::accessKeyClient('<accessKeyId>', '<accessSecret>')
-            ->regionId('cn-hangzhou')
-            ->asDefaultClient();
+    public function sendSms($code , $phone , $type){
+        if($type == 1){ //登陆
+            $TemplateCode = "SMS_193130610";
+        }else{  //注册
+            $TemplateCode = "SMS_193130608";
+        }
+        $code = json_encode(array('code'=>$code));
+        AlibabaCloud::accessKeyClient('LTAI4G29BjpEQhANw7HYsuQL' , 'JEJL1nEjFNU1dr7vr4UZCGF5Sig4EL') -> regionId('cn-hangzhou') -> asDefaultClient();
         try {
             $result = AlibabaCloud::rpc()
                 ->product('Dysmsapi')
@@ -25,18 +29,18 @@ class Sms extends BaseModel{
                 ->options([
                     'query' => [
                         'RegionId' => "cn-hangzhou",
-                        'PhoneNumbers' => "18080498101",
-                        'SignName' => "	 美孜孜",
-                        'TemplateCode' => "SMS_193130608",
-                        'TemplateParam' => "1520",
+                        'PhoneNumbers' => $phone ,
+                        'SignName' => "美孜孜",
+                        'TemplateCode' => $TemplateCode,
+                        'TemplateParam' => $code,
                     ],
                 ])
                 ->request();
-            print_r($result->toArray());
+            return $result;
         } catch (ClientException $e) {
-            echo $e->getErrorMessage() . PHP_EOL;
+
         } catch (ServerException $e) {
-            echo $e->getErrorMessage() . PHP_EOL;
+
         }
     }
 }

@@ -173,4 +173,90 @@ class SystemAdmin extends BaseModel
 
          }
     }
+
+    /**
+     * 获取用户推荐码
+     */
+    public function getUserReco($uid){
+        return self::where('id' , $uid) -> value('reco_code');
+    }
+
+    /**
+     * 根据推荐码获取推荐用户
+     */
+    public function getUserId($reco){
+        return self::where('reco_code' , $reco) -> value('id');
+    }
+
+    /**
+     * 手机号注册
+     */
+    public function phoneRegister($phone  , $reco_uid , $ip){
+        $user_data['account'] = $phone;
+        $user_data['phone'] = $phone;
+        $user_data['add_time'] = time();
+        $user_data['add_ip'] = $ip;
+        $user_data['last_time'] = time();
+        $user_data['last_ip'] = $ip;
+        $user_data['spread_uid'] = $reco_uid;
+        $user_data['spread_time'] = time();
+        $user_data['reco_code'] = $this -> setString();
+        $user_reco_count = self::where('id' , $reco_uid) -> value('spread_count');
+        self::where('id' , $reco_uid) -> save(['spread_count' => $user_reco_count + 1 ]);
+        return self::save($user_data);
+    }
+
+    public function phoneGetUser($phone){
+        return self::where('phone' , $phone) -> value('id');
+    }
+
+    /**
+     * 手机号登陆
+     */
+    public function phoneLogin($phone , $ip){
+        $user_info = self::where('phone',$phone) -> find() -> toArray();
+        if (!$user_info) {
+            return array('status' => 0 , 'msg' => '账号不存在!');
+        }
+        if ($user_info['status'] == 0) {
+            return array('status' => 0, 'msg' => '账号异常已被锁定！！！');
+        }
+        $user = array('uid' => $user_info['id'],
+            'nickname' => $user_info['nickname'],
+            'avatar' => $user_info['avatar'] ? $user_info['avatar'] : '',
+            'phone' => $user_info['phone'],
+            'birthday' => $user_info['birthday'],
+            'sex' => $user_info['sex']
+        );
+        $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
+        $user_token = new UserToken();
+        $user_token -> uid = $user_info['id'];
+        $user_token -> token = $user['token'];
+        $user_token -> expires_time = date('Y-m-d H:i:s', time()+ 7 * 24 * 3600);
+        $user_token -> login_ip = $ip;
+        $user_token -> save();
+        self::where('id' , $user_info['id']) -> save(['last_time'=>time() , 'last_ip' => $ip]);
+        return array('status' => 1, 'msg' => '登陆成功', 'data' => $user);
+    }
+
+    /**
+     * 绑定支付宝
+     */
+    public function alipayName($uid , $number){
+        return self::where('id' , $uid) -> save(['alipay_name' => $number]);
+    }
+
+    /**
+     * 取消绑定支付宝
+     */
+    public function delAlipayName($uid){
+        return self::where('id' , $uid) -> save(['alipay_name' => '']);
+    }
+
+    /**
+     * 用户余额
+     */
+    public function userMoney($uid){
+        return self::where('id' , $uid) -> value('now_money');
+    }
 }

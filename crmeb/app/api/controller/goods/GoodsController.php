@@ -8,6 +8,7 @@ use app\models\goods\Cart;
 use app\models\goods\Footprint;
 use app\models\goods\Order;
 use app\models\goods\OrderGoods;
+use app\models\goods\SystemAdmin;
 use app\models\goods\User;
 use app\models\goods\UserSearch;
 use app\models\store\StoreProduct;
@@ -108,8 +109,8 @@ class GoodsController{
         if(!$number && !$content){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $eva = new StoreProductReply();
@@ -190,8 +191,8 @@ class GoodsController{
      */
     public function cartList(Request $request){
         list($token  , $page , $limit) = UtilService::getMore([['token'] , ['page' , 1] , ['limit' , 10]] , $request , true);
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $cart = new Cart();
@@ -207,8 +208,8 @@ class GoodsController{
         if(!$token && !$goods_id && !$number){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $cart = new Cart();
@@ -227,8 +228,8 @@ class GoodsController{
         if(!$token && !$id && !$number){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $cart = new Cart();
@@ -247,8 +248,8 @@ class GoodsController{
         if(!$token && !$id){
             return app('json')->fail('参数缺失');
         }
-        $user = new User();
-        $rep = $user -> userToken($token);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
         if($rep['status'] == 0)
             return app('json') -> fail('token已失效，请重新登陆');
         $cart = new Cart();
