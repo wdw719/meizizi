@@ -14,6 +14,7 @@ use app\models\goods\User;
 use app\models\store\StoreProductRelation;
 use app\Request;
 use crmeb\services\UtilService;
+use function Symfony\Component\VarDumper\Tests\Fixtures\bar;
 
 class IndexController{
 
@@ -86,7 +87,6 @@ class IndexController{
             return api('0','token已失效，请重新登陆');
         $info = $user -> userInfo($rep['uid']);
         return app('json') -> successful($info);
-
     }
 
     /**

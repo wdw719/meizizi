@@ -254,6 +254,7 @@ Route::group(function () {
     Route::post('goods/delCart', 'goods.GoodsController/delCart')->name('goodsDelCart'); //删除购物车
 
     //团队管理
+    Route::post('team/createTeam', 'goods.TeamController/createTeam')->name('teamcreateTeam'); //创建团队
     Route::post('team/myTeam', 'goods.TeamController/myTeam')->name('teammyTeam'); //我的团队
 
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);

@@ -42,12 +42,9 @@ class SystemAdmin extends BaseModel
      */
     public function userToken($token){
         $user_token_info = UserToken::where('token' , $token) -> find();
-
-//        if(empty($user_token_info)){
         if(strtotime($user_token_info['expires_time']) < time()){
             return array('status' => 0 , 'msg'=>'token不存在或者已过期');
         }
-//    }
         return array('status'=>1 , 'uid'=>$user_token_info['uid']);
     }
 
@@ -171,9 +168,18 @@ class SystemAdmin extends BaseModel
      */
     public function editPassword($password , $new_password , $uid){
         $user_info = $this -> userInfo($uid);
-        if(md5($new_password) != $user_info['pwd'])
-         return api('0','密码不一致');
+        if(md5($password) != $user_info['pwd'])
+            return false;
         return $this -> setUpPassword($new_password , $uid);
+    }
 
+    /**
+     * 我的团队
+     */
+    public function myTeam($uid){
+         $info = self::where(['id'=>$uid])->field(['id'])->select()->toArray();
+         if(empty($info)){
+
+         }
     }
 }
