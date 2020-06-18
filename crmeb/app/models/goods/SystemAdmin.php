@@ -15,6 +15,13 @@ class SystemAdmin extends BaseModel
     }
 
     /**
+     * 根据用户名判断是否有该用户
+    */
+    public function usernameIsRegister($name){
+        return self::where('account' , $name) -> count();
+    }
+
+    /**
      * 检查密码是否安全
      * @parm $password
      */
@@ -53,36 +60,20 @@ class SystemAdmin extends BaseModel
      */
     public function register($head_img , $nickname , $birthday , $sex , $phone , $password, $reco , $ip){
         $reco_id = self::where('reco_code', $reco) -> value('id');
-        $user = new SystemAdmin();
-        $user -> account = $phone;
-        $user -> pwd = md5($password);
-        $user -> nickname = $nickname;
-        $user -> phone = $phone;
-        $user -> birthday = $birthday;
-        $user -> avatar = $head_img;
-        $user -> add_time = time();
-        $user -> add_ip = $ip;
-        $user -> last_ip = $ip;
-        $user -> spread_uid = $reco_id;
-        $user -> spread_time = time();
-        $user -> reco_code = $this  -> setString();
-        $user -> sex = $sex;
-        $user -> save();
-        return [
-            'account'    => $user -> account,
-            'pwd'        => $user -> pwd,
-            'nickname'   => $user-> nickname,
-            'phone'      => $user -> phone,
-            'birthday'   => $user->birthday,
-            'avatar'     => $user->avatar,
-            'add_time'   => $user->add_time,
-            'add_ip'     => $user->add_ip,
-            'last_ip'    => $user->last_ip,
-            'spread_uid' => $user->spread_uid,
-            'spread_time'=> $user->spread_time,
-            'reco_code'  => $user->reco_code,
-            'sex'        =>  $user->sex
-        ];
+        $user_data['account'] = $phone;
+        $user_data['pwd'] = md5($password);
+        $user_data['nickname'] = $nickname;
+        $user_data['phone'] = $phone;
+        $user_data['birthday'] = $birthday?$birthday:'0000-00-00 00:00:00';
+        $user_data['avatar'] = $head_img;
+        $user_data['add_time'] = time();
+        $user_data['add_ip'] = $ip;
+        $user_data['last_ip'] = $ip;
+        $user_data['spread_uid'] = $reco_id;
+        $user_data['spread_time'] = time();
+        $user_data['reco_code'] = $this  -> setString();
+        $user_data['sex'] = $sex;
+        return self::save($user_data);
     }
 
 

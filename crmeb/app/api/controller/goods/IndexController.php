@@ -39,6 +39,10 @@ class IndexController{
         if($count > 0){
             return api('0','该电话号码已经注册');
         }
+        $user_count = $user -> usernameIsRegister($phone);
+        if($user_count > 0){
+            return api('0','该电话号码已经注册');
+        }
         $rep = $user -> register($head_img , $nickname , $birthday , $sex , $phone , $password, $reco , $ip);
         return api('200','注册成功',$rep);
     }
@@ -71,7 +75,6 @@ class IndexController{
             return api('0','token已失效，请重新登陆');
         $user_rep = $user -> editUserData($avatar , $birthday , $sex , $rep['uid']);
         if($user_rep == false) return api('0','修改错误');
-        $data = ['id'=>$rep['uid'],'avatar'=>$avatar,'birthday'=>$birthday,'sex'=>$sex];
         return api('200','修改成功');
     }
 
