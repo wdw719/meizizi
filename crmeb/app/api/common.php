@@ -47,8 +47,8 @@ function api($code,$message,$data=[])
         $data = new stdClass();
     }
     $returnData=array(
-        'code'=>$code,
-        'message'=>$message,
+        'status'=>$code,
+        'msg'=>$message,
         'data'=>$data,
     );
     echo json_encode($returnData);

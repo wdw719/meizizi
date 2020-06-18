@@ -168,10 +168,67 @@ class SystemAdmin extends BaseModel
      * 我的团队
      */
     public function myTeam($uid){
-         $info = self::where(['id'=>$uid])->field(['id'])->select()->toArray();
+         $info = self::where(['gid'=>$uid])
+             ->field(['id','gid','real_name','position','phone','head_img'])
+             ->select()->toArray();
          if(empty($info)){
-
+            $data = ['total'=>0,'chief'=>0,'area'=>0,'salesman'=>0,'teacher'=>0];
+          return  api(200,'未查到数据',['data'=>$data,'info'=>$info]);
          }
+         $total = count($info); //总人数
+         $chief = self::where(['gid'=>$uid,'position'=>1])->select()->toArray();
+         $area = self::where(['gid'=>$uid,'position'=>2])->select()->toArray();
+         $salesman = self::where(['gid'=>$uid,'position'=>3])->select()->toArray();
+         $teacher = self::where(['gid'=>$uid,'position'=>4])->select()->toArray();
+
+        $data = ['total'=>$total,'chief'=>count($chief),'area'=>count($area),'salesman'=>count($salesman),'teacher'=>count($teacher)];
+        return  api(200,'查询成功',['data'=>$data,'info'=>$info]);
+    }
+
+    /**
+     * 团队
+     */
+
+    public function chiefTeam($uid){
+        $info = self::where(['id'=>$uid])
+            ->field(['id','gid','real_name','position','phone','count_money','manag_area'])
+            ->find();
+        if(empty($info)){
+              return $info;
+        }
+        return $info;
+    }
+
+    /**
+     * 角色
+     */
+
+    public function teamNum($uid,$position)
+    {
+            $info = self::where(['gid'=>$uid])
+                ->field(['id','gid','real_name','position','phone'])
+                ->select()->toArray();
+            if($position === 1){
+                $info = self::where(['gid'=>$uid])
+                    ->field(['id','gid','real_name','position','phone'])
+                    ->select()->toArray();
+            }else if($position ===2){
+                $info = self::where(['gid'=>$uid,'position'!=1])
+                    ->field(['id','gid','real_name','position','phone'])
+                    ->select()->toArray();
+            }else if($position === 3){
+                $info = self::where(['gid'=>$uid])
+                    ->field(['id','gid','real_name','position','phone'])
+                    ->select()->toArray();
+            }else if($position ===4){
+                $info = self::where(['gid'=>$uid])
+                    ->field(['id','gid','real_name','position','phone'])
+                    ->select()->toArray();
+            }
+        if(empty($info)){
+            return $info;
+        }
+        return $info;
     }
 
     /**

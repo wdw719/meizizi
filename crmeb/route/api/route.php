@@ -256,8 +256,8 @@ Route::group(function () {
     Route::post('index/delAlipayName', 'goods.IndexController/delAlipayName')->name('indexDelAlipayName'); //取消绑定支付宝
     Route::post('index/userMoney', 'goods.IndexController/userMoney')->name('indexUserMoney'); //用户余额
     //团队管理
-    Route::post('team/createTeam', 'goods.TeamController/createTeam')->name('teamcreateTeam'); //创建团队
     Route::post('team/myTeam', 'goods.TeamController/myTeam')->name('teammyTeam'); //我的团队
+    Route::post('team/chiefTeam', 'goods.TeamController/chiefTeam')->name('teamchiefTeam'); //总监
 
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);
 
