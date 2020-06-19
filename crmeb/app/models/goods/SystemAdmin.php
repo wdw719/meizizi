@@ -4,6 +4,7 @@ namespace app\models\goods;
 
 use app\models\user\UserToken;
 use crmeb\basic\BaseModel;
+use think\Db;
 
 class SystemAdmin extends BaseModel
 {
@@ -182,9 +183,7 @@ class SystemAdmin extends BaseModel
          $chief = self::where(['sid'=>$uid,'position'=>1])->select()->toArray();
          $area = self::where(['sid'=>$uid,'position'=>2])->select()->toArray();
          $salesman = self::where(['sid'=>$uid,'position'=>3])->select()->toArray();
-         $teacher = self::where(['sid'=>$uid,'position'=>4])->select()->toArray();
-
-        $data = ['total'=>$total,'chief'=>count($chief),'area'=>count($area),'salesman'=>count($salesman),'teacher'=>count($teacher)];
+        $data = ['total'=>$total,'chief'=>count($chief),'area'=>count($area),'salesman'=>count($salesman)];
         return  api(200,'查询成功',['data'=>$data,'info'=>$info]);
     }
 
@@ -211,23 +210,89 @@ class SystemAdmin extends BaseModel
            $mod =new SystemAdmin();
             if($position === 1){
                 $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
+                $sid = '';
+                foreach($info as $key=>$v){
+                    $sid .=$v['id'].",";
+                }
+                $re =rtrim($sid,',');
+                $rep_id =explode(',',$re);
+                $store = Merchant::where(['uid'=>$rep_id])->select();
             }else if($position ===2){
                 $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
+                $sid = '';
+                foreach($info as $key=>$v){
+                    $sid .=$v['id'].",";
+                }
+                $re =rtrim($sid,',');
+                $rep_id =explode(',',$re);
+                $store = Merchant::where(['uid'=>$rep_id])->select();
             }else if($position === 3){
                 $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
+                $sid = '';
+                foreach($info as $key=>$v){
+                    $sid .=$v['id'].",";
+                }
+                $re =rtrim($sid,',');
+                $rep_id =explode(',',$re);
+                $store = Merchant::where(['uid'=>$rep_id])->select();
             }else if($position ===4){
                 $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
-            }else if($position === 5){
-                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img','store_name'])->select()->toArray();
+                $sid = '';
+                foreach($info as $key=>$v){
+                    $sid .=$v['id'].",";
+                }
+                $re =rtrim($sid,',');
+                $rep_id =explode(',',$re);
+                $store = Merchant::where(['uid'=>$rep_id])->select();
             }else{
                 $info = self::where(['sid'=>$uid])
                     ->field(['id','gid','real_name','position','phone'])
                     ->select()->toArray();
+                $sid = '';
+                foreach($info as $key=>$v){
+                    $sid .=$v['id'].",";
+                }
+                $re =rtrim($sid,',');
+                $rep_id =explode(',',$re);
+                $store = Merchant::where(['uid'=>$rep_id])->select();
             }
         if(empty($info)){
             return $info;
         }
-        return $info;
+        return ['store'=>$store,'data'=>$info];
+    }
+
+    /**
+     * 团队成员
+     */
+
+    public function teaNum($uid){
+       return self::where(['sid'=>$uid])
+            ->field(['id','sid','real_name','position','head_img'])
+            ->select()->toArray();
+    }
+
+    /**
+     * 任命
+     */
+
+     public function appoInt($uid,$position){
+         return self::where(['id'=>$uid])->update(['position'=>$position]);
+     }
+
+    /**
+     * 更改区域
+     */
+     public function provinceTeam($uid,$manag_area){
+         return self::where(['id'=>$uid])->update(['manag_area'=>$manag_area]);
+     }
+
+    /**
+     *  判断用户是否是商户
+     */
+
+    public function judge($uid){
+       return self::where(['id'=>$uid,'is_mer'=>1])->find();
     }
 
     /**

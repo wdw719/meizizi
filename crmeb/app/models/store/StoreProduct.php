@@ -545,4 +545,12 @@ class StoreProduct extends BaseModel
         $evaluate = $ev -> evaList(1 , $id , 1 , 1);
         return array('info'=>$info , 'reco_list'=>$reco_list , 'eva_list'=>$evaluate);
     }
+
+    /**
+     * 商铺商铺详情
+     */
+
+      public function  storeCat($mer_id){
+      $c=      self::where(['m_id'=>$mer_id])->field(['store_name','price','stock','sales'])->select();
+      }
 }

@@ -255,10 +255,19 @@ Route::group(function () {
     Route::post('index/alipayName', 'goods.IndexController/alipayName')->name('indexAlipayName'); //绑定支付宝
     Route::post('index/delAlipayName', 'goods.IndexController/delAlipayName')->name('indexDelAlipayName'); //取消绑定支付宝
     Route::post('index/userMoney', 'goods.IndexController/userMoney')->name('indexUserMoney'); //用户余额
+<<<<<<< Updated upstream
     Route::post('index/bindingPhone', 'goods.IndexController/bindingPhone')->name('indexBindingPhone'); //绑定手机号
     //团队管理
+=======
+
+>>>>>>> Stashed changes
     Route::post('team/myTeam', 'goods.TeamController/myTeam')->name('teammyTeam'); //我的团队
-    Route::post('team/chiefTeam', 'goods.TeamController/chiefTeam')->name('teamchiefTeam'); //总监
+    Route::post('team/chiefTeam', 'goods.TeamController/chiefTeam')->name('teamchiefTeam'); //团队角色
+    Route::post('team/myStore', 'goods.TeamController/myStore')->name('teammyStore'); //我的商家
+    Route::post('team/teamNum', 'goods.TeamController/teamNum')->name('teamteamNum'); //团队成员
+    Route::post('team/appointTeam', 'goods.TeamController/appointTeam')->name('teamappointTeam'); //任命
+    Route::post('team/updArea', 'goods.TeamController/updArea')->name('teamupdArea'); //更改区域
+    Route::post('team/shopInfo', 'goods.TeamController/shopInfo')->name('teamshopInfo'); //店铺信息
 
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);
 
