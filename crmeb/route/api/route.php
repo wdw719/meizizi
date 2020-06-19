@@ -255,12 +255,11 @@ Route::group(function () {
     Route::post('index/alipayName', 'goods.IndexController/alipayName')->name('indexAlipayName'); //绑定支付宝
     Route::post('index/delAlipayName', 'goods.IndexController/delAlipayName')->name('indexDelAlipayName'); //取消绑定支付宝
     Route::post('index/userMoney', 'goods.IndexController/userMoney')->name('indexUserMoney'); //用户余额
-<<<<<<< Updated upstream
-    Route::post('index/bindingPhone', 'goods.IndexController/bindingPhone')->name('indexBindingPhone'); //绑定手机号
-    //团队管理
-=======
 
->>>>>>> Stashed changes
+    Route::post('index/bindingPhone', 'goods.IndexController/bindingPhone')->name('indexBindingPhone'); //绑定手机号
+
+
+
     Route::post('team/myTeam', 'goods.TeamController/myTeam')->name('teammyTeam'); //我的团队
     Route::post('team/chiefTeam', 'goods.TeamController/chiefTeam')->name('teamchiefTeam'); //团队角色
     Route::post('team/myStore', 'goods.TeamController/myStore')->name('teammyStore'); //我的商家
