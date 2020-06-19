@@ -3,6 +3,7 @@
 namespace app\admin\controller\user;
 
 use app\admin\controller\AuthController;
+use app\admin\model\user\News;
 use crmeb\services\FormBuilder as Form;
 use crmeb\services\JsonService as Json;
 use crmeb\services\UtilService as Util;
@@ -81,4 +82,81 @@ class GoodsBrand extends AuthController{
     }
 
 
+    /**
+     * 消息
+    */
+    public function msgList(){
+        $news = new News();
+        $data = $news -> msgList();
+        $this -> assign('list' , $data['data']);
+        $this -> assign('total' , $data['total_count']);
+        $this -> assign('page' , $data['page']);
+        return $this->fetch('user/msg/index');
+    }
+
+
+    /**
+     * 添加消息
+    */
+    public function addMsg(){
+        $f = array();
+        $f[] = Form::input('title','通知标题');
+        $f[] = Form::input('content','通知内容');
+        $form = Form::make_post_form('添加消息',$f,Url::buildUrl('save'));
+        $this->assign(compact('form'));
+        return $this->fetch('public/form-builder');
+    }
+
+    /**
+     * 保存消息
+    */
+    public function saveMsg(){
+        $data = Util::postMore([
+            'title',
+            'content']);
+        if(!$data['title']) return Json::fail('请输入通知标题!');
+        if(!$data['content']) return Json::fail('请输入通知内容!');
+        $news = new News();
+        $news -> saveMsg($data);
+        return Json::successful('添加消息成功!');
+    }
+
+    /**
+     * 修改消息
+    */
+    public function editMsg($id){
+        $news = new News();
+        $info = $news -> info($id);
+        if(!$info) return Json::fail('通知错误!');
+        $f = array();
+        $f[] = Form::input('title','通知标题',$info->getData('title'));
+        $f[] = Form::input('content','通知内容',$info->getData('content'));
+        $form = Form::make_post_form('更新通知',$f,Url::buildUrl('update',array('id'=>$id)));
+        $this->assign(compact('form'));
+        return $this->fetch('public/form-builder');
+    }
+
+    /**
+     * 保存修改消息
+    */
+    public function updateMsg($id){
+        $data = Util::postMore([
+            'title',
+            'content'
+        ]);
+        if(!$data['title']) return Json::fail('请输入通知标题!');
+        if(!$data['content']) return Json::fail('请输入通知内容!');
+        $news = new News();
+        $news -> updateMsg($data , $id);
+        return Json::successful('修改成功!');
+    }
+
+    /**
+     * 删除消息
+    */
+    public function delMsg($id){
+        $news = new News();
+        $news -> delMsg($id);
+        return Json::successful('删除成功!');
+    }
 }

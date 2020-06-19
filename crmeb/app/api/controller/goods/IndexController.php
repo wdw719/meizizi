@@ -69,12 +69,12 @@ class IndexController{
      * 修改用户资料
      */
     public function editUserData(Request $request){
-        list($token , $avatar , $birthday , $sex)  = UtilService::getMore([['token'] , ['avatar'] , ['birthday'] , ['sex' , 1]] , $request , true);
+        list($token , $avatar , $birthday , $sex , $nickname)  = UtilService::getMore([['token'] , ['avatar'] , ['birthday'] , ['sex' , 1] , ['nickname']] , $request , true);
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
             return api(0,'token已失效，请重新登陆');
-        $user_rep = $user -> editUserData($avatar , $birthday , $sex , $rep['uid']);
+        $user_rep = $user -> editUserData($avatar , $birthday , $sex , $rep['uid'] , $nickname);
         if($user_rep == false){
             return api(0,'修改错误');
         }
@@ -204,7 +204,7 @@ class IndexController{
         //调用短信接口
         $sms = new Sms();
         $code = rand(10000 , 99999);
-        $sms -> sendSms($phone , $code , $type);
+        $sms -> sendSms($code , $phone , $type);
         $phone_code = new PhoneCode();
         $phone_code -> add($phone , $code);
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=> ''));

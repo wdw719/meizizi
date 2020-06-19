@@ -126,10 +126,11 @@ class SystemAdmin extends BaseModel
     /**
      * 修改用户资料
      */
-    public function editUserData($avatar , $birthday , $sex , $uid){
+    public function editUserData($avatar , $birthday , $sex , $uid , $nickname){
         $user_data['avatar'] = $avatar;
-        $user_data['birthday'] = date('Y-m-d H:i:s' , $birthday);
+        $user_data['birthday'] = $birthday;
         $user_data['sex'] = $sex;
+        $user_data['nickname'] = $nickname;
         $rep = self::where('id' , $uid) -> save($user_data);
         return $rep;
     }
