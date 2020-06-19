@@ -4,8 +4,10 @@ namespace app\admin\controller\user;
 
 use app\admin\controller\AuthController;
 use app\admin\model\user\News;
+use app\models\goods\Shop;
 use crmeb\services\FormBuilder as Form;
 use crmeb\services\JsonService as Json;
+use crmeb\services\JsonService;
 use crmeb\services\UtilService as Util;
 use think\facade\Route as Url;
 
@@ -102,7 +104,7 @@ class GoodsBrand extends AuthController{
         $f = array();
         $f[] = Form::input('title','通知标题');
         $f[] = Form::input('content','通知内容');
-        $form = Form::make_post_form('添加消息',$f,Url::buildUrl('save'));
+        $form = Form::make_post_form('添加消息',$f,Url::buildUrl('saveMsg'));
         $this->assign(compact('form'));
         return $this->fetch('public/form-builder');
     }
@@ -129,9 +131,9 @@ class GoodsBrand extends AuthController{
         $info = $news -> info($id);
         if(!$info) return Json::fail('通知错误!');
         $f = array();
-        $f[] = Form::input('title','通知标题',$info->getData('title'));
-        $f[] = Form::input('content','通知内容',$info->getData('content'));
-        $form = Form::make_post_form('更新通知',$f,Url::buildUrl('update',array('id'=>$id)));
+        $f[] = Form::input('title','通知标题',$info['title']);
+        $f[] = Form::input('content','通知内容',$info['content']);
+        $form = Form::make_post_form('更新通知',$f,Url::buildUrl('updateMsg',array('id'=>$id)));
         $this->assign(compact('form'));
         return $this->fetch('public/form-builder');
     }
@@ -156,7 +158,44 @@ class GoodsBrand extends AuthController{
     */
     public function delMsg($id){
         $news = new News();
-        $news -> delMsg($id);
-        return Json::successful('删除成功!');
+        $res = $news -> delMsg($id);
+        if (!$res)
+            return Json::fail('删除失败,请稍候再试!');
+        else
+            return Json::successful('删除成功!');
     }
+
+    /**
+     * 店铺信息
+    */
+    public function shopInfo(){
+        $shop = new Shop();
+        $info = $shop -> info($this -> adminId);
+        if(!$info) return Json::fail('没有店铺信息!');
+        $f = array();
+        $f[] = Form::input('phone','电话号码',$info['phone']);
+        $f[] = Form::input('wx_name','微信名称',$info['wx_name']);
+        $f[] = Form::input('company','公司名称',$info['company']);
+        $form = Form::make_post_form('更新店铺信息',$f,Url::buildUrl('addShopInfo',array('id'=>$info['id'])));
+        $this->assign(compact('form'));
+        return $this->fetch('public/form-builder');
+    }
+
+    /**
+     * 保存店铺信息
+    */
+    public function addShopInfo($id){
+        $data = Util::postMore([
+            'phone',
+            'wx_name',
+            'company'
+        ]);
+        if(!$data['phone']) return Json::fail('请输入电话号码!');
+        if(!$data['wx_name']) return Json::fail('请输入微信号!');
+        if(!$data['company']) return Json::fail('请输入公司名称!');
+        $shop = new Shop();
+        $shop -> updateMsg($data , $id);
+        return Json::successful('修改成功!');
+    }
+
 }

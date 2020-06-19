@@ -304,7 +304,11 @@ class IndexController{
         $ip = $_SERVER['REMOTE_ADDR'];
         $sy_name = new SystemAdmin();
         $rep = $sy_name -> phoneLogin($phone , $ip);
-        return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep['data']));
+        if($rep['status'] == 0 ){
+            return json_encode( array('status'=>0, 'msg'=>$rep['msg']));
+        }else{
+            return json_encode( array('status'=>200, 'msg'=>'', 'data'=> $rep['data']));
+        }
     }
 
     /**
@@ -442,4 +446,16 @@ class IndexController{
         return json_encode( array('status'=>200, 'msg'=>'', 'data'=>$info));
     }
 
+    /**
+     * 绑定手机号
+    */
+    public function bindingPhone(Request $request){
+        list($token , $phone) = UtilService::getMore([['token'] , ['phone']] , $request , true);
+        $sy_user = new SystemAdmin();
+        $rep = $sy_user -> userToken($token);
+        if($rep['status'] == 0)
+            return app('json') -> fail('token已失效，请重新登陆');
+        $sy_user -> bindingPhone($rep['uid'] , $phone);
+        return json_encode( array('status'=>200, 'msg'=>'', 'data'=>''));
+    }
 }

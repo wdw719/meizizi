@@ -73,6 +73,8 @@ class Order extends BaseModel{
                 $pro_rep = $goods -> where('id' , $goods_id) -> save(['stock' =>$goods_info['stock'] - $number]);
             }
             self::commitTrans();
+
+
             return array('status' => 1, 'data' => "11111111");
         } catch (\Exception $e) {
             self::rollbackTrans();
@@ -94,5 +96,9 @@ class Order extends BaseModel{
                 break;
         }
         return $order_sn;
+    }
+
+    public function info($master_order_sn){
+        return self::where('master_order_sn' , $master_order_sn) -> find();
     }
 }

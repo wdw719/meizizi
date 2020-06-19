@@ -331,4 +331,8 @@ class SystemAdmin extends BaseModel
             'sex' => $user_info['sex']
         );
     }
+
+    public function bindingPhone($uid , $phone){
+        return self::where('id' , $uid) -> save(['phone'=>$phone]);
+    }
 }

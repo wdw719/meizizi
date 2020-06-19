@@ -32,5 +32,11 @@ class Shop extends BaseModel{
 
     }
 
+    public function info($id){
+        return self::where('uid' , $id) -> find() -> toArray();
+    }
 
+    public function updateMsg($data , $id){
+        return self::where('id' , $id) -> save($data);
+    }
 }
