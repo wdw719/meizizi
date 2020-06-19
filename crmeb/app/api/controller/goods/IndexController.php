@@ -27,25 +27,25 @@ class IndexController{
         list($head_img , $nickname ,$birthday, $sex , $phone , $password , $reco) = UtilService::getMore([['head_img'], ['nickname'],['birthday'],
             ['sex',1],['phone'],['password'],['reco']], $request, true);
         if(!$phone && !$password && !$reco){
-            return api('0','参数缺失');
+            return api(0,'参数缺失');
         }
-        if(empty($reco)) return api('0','推荐码不能为空');
+        if(empty($reco)) return api(0,'推荐码不能为空');
         if(empty($phone) || empty($password)) return api('0','账号或密码不能为空');
         $user = new SystemAdmin();
         $check_pass = $user -> check_pass_security($password);
         if($check_pass == false){
-            return api('0','该密码不安全，请重新输入密码！');
+            return api(0,'该密码不安全，请重新输入密码！');
         }
         $count = $user -> phoneIsRegister($phone);
         if($count > 0){
-            return api('0','该电话号码已经注册');
+            return api(0,'该电话号码已经注册');
         }
         $user_count = $user -> usernameIsRegister($phone);
         if($user_count > 0){
-            return api('0','该电话号码已经注册');
+            return api(0,'该电话号码已经注册');
         }
         $rep = $user -> register($head_img , $nickname , $birthday , $sex , $phone , $password, $reco , $ip);
-        return api('200','注册成功',$rep);
+        return api(200,'注册成功',$rep);
     }
 
     /**
@@ -55,13 +55,13 @@ class IndexController{
         $ip = $_SERVER['REMOTE_ADDR'];
         list($username , $password) = UtilService::getMore([['username'] , ['password']] , $request , true);
         if(!$username && !$password)
-            return api('0','参数错误');
+            return api(0,'参数错误');
         if(!$username || !$password)
-            return api('0','账号或密码不能为空');
+            return api(0,'账号或密码不能为空');
         $user = new SystemAdmin();
         $info = $user -> login($username , $password , $ip);
         if($info['status'] == 0)
-            return api('0',$info['msg']);
+            return api(0,$info['msg']);
         return app('json') -> successful($info['data']);
     }
 
@@ -73,10 +73,12 @@ class IndexController{
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
-            return api('0','token已失效，请重新登陆');
+            return api(0,'token已失效，请重新登陆');
         $user_rep = $user -> editUserData($avatar , $birthday , $sex , $rep['uid']);
-        if($user_rep == false) return api('0','修改错误');
-        return api('200','修改成功');
+        if($user_rep == false){
+            return api(0,'修改错误');
+        }
+        return api(200,'修改成功');
     }
 
     /**
@@ -85,10 +87,10 @@ class IndexController{
     public function userInfo(Request $request){
         list($token)  = UtilService::getMore([['token']] , $request , true);
         $user = new SystemAdmin();
-        if(empty($token)) return api('0','token不存在');
+        if(empty($token)) return api(0,'token不存在');
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
-            return api('0','token已失效，请重新登陆');
+            return api(0,'token已失效，请重新登陆');
         $info = $user -> userInfo($rep['uid']);
         return app('json') -> successful($info);
     }
@@ -113,12 +115,12 @@ class IndexController{
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
-            return api('0','token已失效，请重新登陆');
+            return api(0,'token已失效，请重新登陆');
         $check_password = $user -> checkPassword($rep['uid']);
         if($check_password)
-            return api('0','已设置过密码');
+            return api(0,'已设置过密码');
         $ser_pwd_info = $user -> setUpPassword($password , $rep['uid']);
-        return api('0','设置成功');
+        return api(0,'设置成功');
     }
 
     /**
@@ -127,9 +129,9 @@ class IndexController{
     public function editPassword(Request $request){
         list($token , $password , $new_password) = UtilService::getMore([['token'] , ['password'] , ['new_password']] , $request , true);
         if(!$token && !$password && !$new_password){
-            return api('0','参数缺失');
+            return api(0,'参数缺失');
         }
-        if(empty($token)) return api('0','token不能为空');
+        if(empty($token)) return api(0,'token不能为空');
         $user = new SystemAdmin();
         $rep = $user -> userToken($token);
         if($rep['status'] == 0)
@@ -138,10 +140,10 @@ class IndexController{
         if($check_pass == false){
             return app('json')->fail('该密码不安全，请重新输入密码！');
         }
-        if(empty($password)) return api('0','密码不能为空');
-        if(empty($new_password)) return api('0','新密码不能为空');
+        if(empty($password)) return api(0,'密码不能为空');
+        if(empty($new_password)) return api(0,'新密码不能为空');
         $rep = $user -> editPassword($password , $new_password , $rep['uid']);
-        return api('200','修改成功',['new_password'=>$new_password]);
+        return api(200,'修改成功',['new_password'=>$new_password]);
     }
 
     /**

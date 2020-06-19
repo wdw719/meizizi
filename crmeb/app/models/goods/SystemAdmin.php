@@ -126,7 +126,7 @@ class SystemAdmin extends BaseModel
      */
     public function editUserData($avatar , $birthday , $sex , $uid){
         $user_data['avatar'] = $avatar;
-        $user_data['birthday'] = $birthday;
+        $user_data['birthday'] = date('Y-m-d H:i:s' , $birthday);
         $user_data['sex'] = $sex;
         $rep = self::where('id' , $uid) -> save($user_data);
         return $rep;
