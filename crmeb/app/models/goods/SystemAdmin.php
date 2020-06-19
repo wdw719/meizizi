@@ -96,7 +96,9 @@ class SystemAdmin extends BaseModel
             'nickname' => $user_info['nickname'],
             'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
             'phone' => $user_info['phone'],
-            'alipay_name' => $user_info['alipay_name']
+            'alipay_name' => $user_info['alipay_name'],
+            'birthday' => $user_info['birthday'],
+            'sex' => $user_info['sex']
             );
         $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
         $sel  = UserToken::where(['uid'=>$user_info['id']])->find();
@@ -279,6 +281,7 @@ class SystemAdmin extends BaseModel
             'avatar' => $user_info['avatar'] ? $user_info['avatar'] : '',
             'phone' => $user_info['phone'],
             'birthday' => $user_info['birthday'],
+            'alipay_name' => $user_info['alipay_name'],
             'sex' => $user_info['sex']
         );
         $user['token'] = md5(mt_rand(1, 999999999) . time() . uniqid());
@@ -311,5 +314,20 @@ class SystemAdmin extends BaseModel
      */
     public function userMoney($uid){
         return self::where('id' , $uid) -> value('now_money');
+    }
+
+    /**
+     * 返回用户信息
+    */
+    public function userReturn($uid){
+        $user_info = self::where('id' , $uid) -> find() -> toArray();
+         return array('uid' => $uid,
+            'nickname' => $user_info['nickname'],
+            'avatar' => $user_info['avatar'] ? $user_info['avatar'] : '',
+            'phone' => $user_info['phone'],
+            'birthday' => $user_info['birthday'],
+             'alipay_name' => $user_info['alipay_name'],
+            'sex' => $user_info['sex']
+        );
     }
 }

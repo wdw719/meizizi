@@ -38,9 +38,7 @@ class Sms extends BaseModel{
                 ->request();
             return $result;
         } catch (ClientException $e) {
-
         } catch (ServerException $e) {
-
         }
     }
 }

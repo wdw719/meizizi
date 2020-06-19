@@ -78,7 +78,8 @@ class IndexController{
         if($user_rep == false){
             return api(0,'修改错误');
         }
-        return api(200,'修改成功');
+        $info = $user -> userReturn($rep['uid']);
+        return api(200,'修改成功' , $info);
     }
 
     /**
