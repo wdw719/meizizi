@@ -94,7 +94,7 @@ class SystemAdmin extends BaseModel
         $user_token = new UserToken();
         $user = array('uid' => $user_info['id'],
             'nickname' => $user_info['nickname'],
-            'avatar' => $user_info['avatar'] ? $user_info['head_pic'] : '',
+            'avatar' => $user_info['avatar'] ? $user_info['avatar'] : '',
             'phone' => $user_info['phone'],
             'alipay_name' => $user_info['alipay_name'],
             'birthday' => $user_info['birthday'],
