@@ -547,10 +547,23 @@ class StoreProduct extends BaseModel
     }
 
     /**
-     * 商铺商铺详情
+     * 商铺详情
      */
 
-      public function  storeCat($mer_id){
-      $c=      self::where(['m_id'=>$mer_id])->field(['store_name','price','stock','sales'])->select();
+      public function  storeCat($mid){
+      $var =  self::where(['m_id'=>$mid])->field(['id','store_name','price','stock','sales'])->select();
+      return $data =$this->dod($var);
+      }
+
+    /**
+     * 营业额
+     */
+      public function dod($var){
+          $l = [];
+          foreach ($var->toArray() as $k =>$v){
+              $v['turnover']=$v['price']*$v['sales'];
+              $l[]= $v;
+          }
+          return $l;
       }
 }

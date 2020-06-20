@@ -169,11 +169,27 @@ class SystemAdmin extends BaseModel
     }
 
     /**
+     * 判断商户
+     */
+
+    public function mer($uid){
+        return self::where(['id'=>$uid,'is_mer'=>1])->find();
+    }
+
+    /**
+     * 判断是否为讲师
+     */
+
+      public function pwd($uid){
+          return self::where(['id'=>$uid,'position'=>3])->find();
+      }
+
+    /**
      * 我的团队
      */
     public function myTeam($uid){
          $info = self::where(['sid'=>$uid])
-             ->field(['id','sid','real_name','position','phone','head_img'])
+             ->field(['id','sid','real_name','position','phone','avatar'])
              ->select()->toArray();
          if(empty($info)){
             $data = ['total'=>0,'chief'=>0,'area'=>0,'salesman'=>0,'teacher'=>0];
@@ -193,7 +209,7 @@ class SystemAdmin extends BaseModel
 
     public function chiefTeam($uid){
         $info = self::where(['id'=>$uid])
-            ->field(['id','gid','real_name','position','phone','count_money','manag_area','head_img'])
+            ->field(['id','gid','real_name','position','phone','count_money','manag_area','avatar'])
             ->find();
         if(empty($info)){
               return $info;
@@ -209,25 +225,19 @@ class SystemAdmin extends BaseModel
     {
            $mod =new SystemAdmin();
             if($position === 1){
-                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
-                $sid = '';
-                foreach($info as $key=>$v){
-                    $sid .=$v['id'].",";
+                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','avatar'])->select()->toArray();
+                if(empty($info)){
+                    return $info;
                 }
-                $re =rtrim($sid,',');
-                $rep_id =explode(',',$re);
-                $store = Merchant::where(['uid'=>$rep_id])->select();
+                return ['data'=>$info];
             }else if($position ===2){
-                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
-                $sid = '';
-                foreach($info as $key=>$v){
-                    $sid .=$v['id'].",";
+                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','avatar'])->select()->toArray();
+                if(empty($info)){
+                    return $info;
                 }
-                $re =rtrim($sid,',');
-                $rep_id =explode(',',$re);
-                $store = Merchant::where(['uid'=>$rep_id])->select();
+                return ['data'=>$info];
             }else if($position === 3){
-                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
+                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','avatar'])->select()->toArray();
                 $sid = '';
                 foreach($info as $key=>$v){
                     $sid .=$v['id'].",";
@@ -235,31 +245,23 @@ class SystemAdmin extends BaseModel
                 $re =rtrim($sid,',');
                 $rep_id =explode(',',$re);
                 $store = Merchant::where(['uid'=>$rep_id])->select();
+                return ['store'=>$store,'data'=>$info];
             }else if($position ===4){
-                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','head_img'])->select()->toArray();
-                $sid = '';
-                foreach($info as $key=>$v){
-                    $sid .=$v['id'].",";
+                $info = $mod->where('gid','=',$uid) ->field(['id','gid','real_name','position','phone','avatar'])->select()->toArray();
+                if(empty($info)){
+                    return $info;
                 }
-                $re =rtrim($sid,',');
-                $rep_id =explode(',',$re);
-                $store = Merchant::where(['uid'=>$rep_id])->select();
+                return ['data'=>$info];
             }else{
                 $info = self::where(['sid'=>$uid])
-                    ->field(['id','gid','real_name','position','phone'])
+                    ->field(['id','gid','real_name','position','phone','avatar'])
                     ->select()->toArray();
-                $sid = '';
-                foreach($info as $key=>$v){
-                    $sid .=$v['id'].",";
+                if(empty($info)){
+                    return $info;
                 }
-                $re =rtrim($sid,',');
-                $rep_id =explode(',',$re);
-                $store = Merchant::where(['uid'=>$rep_id])->select();
+                return ['data'=>$info];
             }
-        if(empty($info)){
-            return $info;
-        }
-        return ['store'=>$store,'data'=>$info];
+
     }
 
     /**
@@ -268,7 +270,7 @@ class SystemAdmin extends BaseModel
 
     public function teaNum($uid){
        return self::where(['sid'=>$uid])
-            ->field(['id','sid','real_name','position','head_img'])
+            ->field(['id','sid','real_name','position','avatar'])
             ->select()->toArray();
     }
 
@@ -286,6 +288,13 @@ class SystemAdmin extends BaseModel
      public function provinceTeam($uid,$manag_area){
          return self::where(['id'=>$uid])->update(['manag_area'=>$manag_area]);
      }
+
+    /**
+     * 更改市区域
+     */
+    public function provinceCity($uid,$manag_area){
+        return self::where(['id'=>$uid])->update(['manag_area'=>$manag_area]);
+    }
 
     /**
      *  判断用户是否是商户
@@ -399,5 +408,33 @@ class SystemAdmin extends BaseModel
 
     public function bindingPhone($uid , $phone){
         return self::where('id' , $uid) -> save(['phone'=>$phone]);
+    }
+
+    /**
+     * 是否是总监
+     */
+     public function isPositon($uid){
+         return self::where(['id'=>$uid,'position'=>1])->field('position')->find();
+     }
+
+    /**
+     * 是否是省区经理
+     */
+    public function isCityp($uid){
+        return self::where(['id'=>$uid,'position'=>2])->field('position')->find();
+    }
+
+    /**
+     * 是否有权限修改省区域
+     */
+    public function isArea($u_id,$uid){
+       return self::where(['id'=>$u_id,'gid'=>$uid])->find();
+    }
+
+    /**
+     * 是否有权限修改市区域
+     */
+    public function isCity($u_id,$uid){
+        return self::where(['id'=>$u_id,'gid'=>$uid])->find();
     }
 }

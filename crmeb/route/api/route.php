@@ -266,7 +266,9 @@ Route::group(function () {
     Route::post('team/teamNum', 'goods.TeamController/teamNum')->name('teamteamNum'); //团队成员
     Route::post('team/appointTeam', 'goods.TeamController/appointTeam')->name('teamappointTeam'); //任命
     Route::post('team/updArea', 'goods.TeamController/updArea')->name('teamupdArea'); //更改区域
-    Route::post('team/shopInfo', 'goods.TeamController/shopInfo')->name('teamshopInfo'); //店铺信息
+    Route::post('team/shopInfo', 'goods.TeamController/shopInfo')->name('teamshopInfo'); //店铺信息 -讲师
+    Route::post('team/updCity', 'goods.TeamController/updCity')->name('teamupdCity'); //更改市区域
+    Route::post('team/myTeacher', 'goods.TeamController/myTeacher')->name('teammyTeacher'); //我的商家-讲师
 
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, false);
 

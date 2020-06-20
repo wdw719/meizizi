@@ -7,11 +7,19 @@ use crmeb\basic\BaseModel;
 class Merchant extends BaseModel
 {
     /**
-     *  查看店铺信息
+     * 团队管理-我的商家
      */
      public function catStore($uid){
          return Merchant::where(['uid'=>$uid])->field(['id','uid','stores_name','stocks','store_phone','areas','s_stocks'])->select();
      }
+
+    /**
+     * 讲师-我的商家
+     */
+    public function catTeacher($uid){
+        return Merchant::where(['uid'=>$uid])->field(['id','uid','stores_name','store_phone','areas'])->select();
+    }
+
 
     /**
      *  店铺信息

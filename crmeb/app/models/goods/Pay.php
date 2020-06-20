@@ -30,7 +30,4 @@ class Pay extends  BaseModel{
         return array('msg' => '获取成功', 'status' => 1, 'data' => array($result));
     }
 
-    function pay_alipay($data){
-        //$aop = new AopClient();
-    }
 }
